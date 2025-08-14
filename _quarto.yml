@@ -3,7 +3,7 @@ project:
   output-dir: docs
 
 website:
-  title: "ISCB-2025"
+  title: "ISCB 2025"
   navbar:
     left:
       - href: index.qmd
