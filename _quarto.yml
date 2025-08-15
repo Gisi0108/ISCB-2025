@@ -7,14 +7,40 @@ website:
   navbar:
     left:
       - href: index.qmd
-        text: Home
-      - about.qmd
+        text: Main
+    foreground: '#000000'
+    background: '#ff4081'
 
 format:
   html:
-    theme: cosmo
-    css: styles.css
-    toc: true
+    title-block-style: default     # show title block
+    title-block-banner: true       # optional banner style
+
+
+# Global affiliations (each has a unique ID)
+
+# Global authors, referencing affiliation IDs
+authors:
+  - name: Alexander Gieswinkel (1, 2, 3)
+    degrees: M.Sc.
+    orcid: 0009-0004-7014-5624
+    email: alexander.gieswinkel@unimedizin-mainz.de
+  - name: Gregor Buch (1, 3)
+  - name: Gökhan Gül (1, 4)
+  - name: Vincent ten Cate (1, 3, 4)
+  - name: Lisa Hartung (2)
+  - name: Philipp S. Wild (1, 3, 4, 5)
+
+    
+# affiliations:
+#   - id: a1 
+#     name: 
+#   - id: a2 
+#     name: 
+# 
+
+
+
 
 
 

@@ -1,5 +1,27 @@
 ---
-title: "ISCB2025 Concepts"
+title: 'Systematic review and real life-oriented evaluation on methods for feature selection in longitudinal biomedical data'
+subtitle: "Methods presented at ISCB 2025"
+title-block-style: default
+title-block-banner: '#bdbdbd'
+title-block-banner-color: '#000000'
+date: today
+date-format: YYYY-MM-DD
+format:
+  html: 
+    theme: flatly
+    page-layout: article
+    fontsize: 14pt
+    fontfamily: libertinus
+    grid: 
+      sidebar-width: 350px
+      body-width: 1200px
+      margin-width: 100px
+    toc: true
+    toc-depth: 2
+    toc-location: left
+    toc-title: 'Concepts'
+    toc-expand: true
+    html-table-processing: none
 sidebar:
   contents: auto
 number-sections: false
@@ -8,14 +30,27 @@ bibliographystyle: ieee
 link-citations: true
 ---
 
+::: {style="font-size: 50%;"}
+Affiliations:
+1) Preventive Cardiology and Preventive Medicine, Department of Cardiology, University Medical Center of the Johannes Gutenberg University Mainz, 55131 Mainz, Germany
+2) Institute of Mathematics, Johannes Gutenberg University Mainz, 55128 Mainz, Germany
+3) German Center for Cardiovascular Research (DZHK), partner site Rhine Main, 55131 Mainz, Germany
+4) Clinical Epidemiology and Systems Medicine, Center for Thrombosis and Hemostasis, University Medical Center of the Johannes Gutenberg University Mainz, 55131 Mainz, Germany
+5) Institute of Molecular Biology (IMB), 55131 Mainz, Germany
+:::
+
+
+This website was created to give additional informations on the research project [Systematic review and real life-oriented evaluation on methods for feature selection in longitudinal biomedical data](https://www.conftool.org/iscb2025/index.php?page=browseSessions&presentations=show&search=Gieswinkel) presented at ISCB 2025 in Basel. Non of the following is peer-reviewd, published or in a submission stage. 
+
+
 # GEE based methods
 
 ## Mathematical backgroud
 
-The generalized estimation equations have the following assumptions:
+The GEE (generalized estimating equations) have the following assumptions:
 
--   Independent measurements across the clusters (individuals)
--   Measurements might correlate within clusters
+-   independent measurements across the clusters (individuals)
+-   measurements might correlate within clusters
 
 Details on the following concept can be found in [@RN19].
 
@@ -40,7 +75,8 @@ X_i = \begin{pmatrix}
   \end{pmatrix}.
 $$
 
-The generalized *(marginal) mean model* for coefficients $\beta = (\beta_1, \ldots, \beta_p)^T$ looks like this $$
+The generalized *(marginal) mean model* for coefficients $\beta = (\beta_1, \ldots, \beta_p)^T$ is 
+$$
 \begin{split}
 \mathbb{E} \left[ Y_{ij} \mid X_{i} \right] = \mathbb{E} \left[ Y_{ij} \mid X_{ij} \right] &= \mu_{ij} \\
 g(\mu_{ij}) &= \beta_0 + \beta_1 X_{ij1} + \ldots + \beta_p X_{ijp} \\
@@ -50,7 +86,8 @@ $$
 
 (with a little abuse of the notation, ignoring the intercept $\beta_0$).
 
-We assume, that there exists a known 'variance function' $v$ and a corresponding scale parameter $\phi$ such that $$
+We assume that there exists a known 'variance function' $v$ and a corresponding scale parameter $\phi$ such that 
+$$
 V_{ij} := \text{Var} \left[ Y_{ij} \mid X_{i} \right] = \phi v(\mu_{ij}).
 $$
 
@@ -73,7 +110,7 @@ $$ The parameters $\alpha$ characterizes the correlation.
 
 Note: Since $\mu_{ij} = \mu_{ij}(\beta)$ is dependent on the regression coefficients, we also have $V_i(\alpha) = V_i(\alpha, \beta)$.
 
-To estimate the regression coefficients $\beta$, we have to solve the following score function: $$
+To estimate the regression coefficients $\beta$, we have to solve the following **score equation**: $$
 \begin{split}
 U(\beta, \alpha) = U(\beta) :=& \sum_{i=1}^N D_i^T V_i^{-1}(Y_i-\mu_i) \\
 \overset{!}{=}& \ 0,
@@ -86,30 +123,49 @@ Note: In the Gaussian case, i.e. $g(\mu_{ij}) = \mu_{ij}$, we have $\frac{\parti
 
 ## Identified software packages
 
-The following R packages are based on the GEE framework.
+These identified R packages are based on the GEE framework.
 
-### PGEE \[Grey list\]
+### PGEE \[not selected\]
 
-**PGEE** does not provide a default threshold to decide if a variable is selected or not. Therefore it was put on the gray list. But since most of the following GEE-based packages relies on this method, it is presented at the beginning of this section:
+**PGEE** does not provide a default threshold to decide if a variable is selected or not. Therefore it was excluded from the methods during screening. But since most of the following GEE-based packages relies on this method, it is usefull to present it's approach at the beginning of this section:
 
-The R package **PGEE** [@RN16] adds a penalty term to the [score equation @eq-gee]. In more detail, the SCAD penalty is chosen: $$
+The R package **PGEE** [@RN16] adds a penalty term to the [score equation @eq-gee]. More precisely, the SCAD (smoothly clipped absolute deviation) penalty is chosen: 
+$$
 q_{\lambda}(\theta) := \lambda \left( 
   1_{\theta \leq \lambda} + 
   \frac{(a \lambda - \theta)_+}{(a-1)\lambda} 1_{\theta > \lambda} \right)
-$$ Where $\theta \geq 0$, $a > 2$ (set to $a=3.7$). Note: In (ref), there is a dependency of $p$ on $N$, but in our use, we choose $N$ fix. The penalized regression coefficients can be calculated by solving the modified equation: $$
+$$ 
+Where $\theta \geq 0$, $a > 2$ (set to $a=3.7$). The penalized regression coefficients can be calculated by solving the modified equation: 
+$$
 \begin{split}
 U^\text{PGEE}(\beta) :=& \ U(\beta) - q_\lambda(|\beta|) \circ \text{sign}(\beta)  \\
 \overset{!}{=}& \ 0,
 \end{split}
 $$ {#eq-pgee} where $\circ$ denotes the Hadamard product (element-wise product) of two vectors.
 
+
+
+### LassoGEE
+
+No references were found for this package. However, checking the code of the main functions revealed the direct usage of the **PGEE** functions, but own functions to include the $L^1$-penalty were additionally included.
+
+
+### pgee.mixed
+
+Reference paper is [@RN24] Can be applied for multivariate outcomes and is for the univariate case the same as **PGEE**. There is an additional method for controlling the FDR of the selection, but this is (currently) only in the multivariate setting available.
+
+
 ### geeVerse
 
-The R package **geeVerse** [@RN14] is based on **PGEE** but uses a quantile regression approach, e.g. for given quantile $\tau \in (0,1)$ we consider $$
+The R package **geeVerse** [@RN14] is based on **PGEE** but uses a *quantile* regression approach, i.e. for a given quantile $\tau \in (0,1)$ we consider 
+$$
 \theta_\tau(Y_i \mid X_i) = X_i \beta_\tau
-$$ with different regression coefficients $\beta_\tau (=: \beta)$ at different quantile levels. Instead of using $U(\beta)$, we have to adjust this a bit: $$
+$$ 
+with different regression coefficients $\beta_\tau (=: \beta)$ at different quantile levels. Instead of using $U(\beta)$, we have to adjust this a bit: 
+$$
 \tilde{U}(\beta) :=  \sum_{i=1}^N X_i^T \Gamma_i R_i^{-1}(\tau - 1_{Y_i \leq X_i\beta}),
-$$ where $\Gamma_i$ is a $T \times T$ diagonal matrix of the conditional density of error $Y_{ij} - X_{ij}\beta$ and $\tau - 1_{Y_i \leq X_i\beta}$ is seen component wise.
+$$
+where $\Gamma_i$ is a $T \times T$ diagonal matrix of the conditional density of error $Y_{ij} - X_{ij}\beta$ and $\tau - 1_{Y_i \leq X_i\beta}$ is seen component wise.
 
 The corresponding quantile penalized generalized estimating equation is then defined as $$
 \begin{split}
@@ -120,13 +176,16 @@ $$ {#eq-geeverse}
 
 ### sgee
 
-The package **sgee** [@RN18] builds a model via a *stagewise* procedure: Start with a null model, i.e. $\beta^{[0]} := 0$ and update this to $\beta^{[t]} := \beta^{[t-1]} + \delta^{[t]}$, $t \in \mathbb{N}$. In the general framework, the update increment is defined as $$
+The package **sgee** [@RN18] builds a model via a *stagewise* procedure: Start with a null model, i.e. $\beta^{[0]} := 0$ and update this to $\beta^{[t]} := \beta^{[t-1]} + \delta^{[t]}$, $t \in \mathbb{N}$. In the general framework, the update increment is defined as 
+$$
 \begin{split}
 \delta^{[t]} :=& \ \underset{\delta \in \mathbb{R}^p}{\mathrm{arg\min}}
   f(\beta^{[t-1]} + \delta) - f(\beta^{[t-1]}) \\
   & \text{subject to} \ \phi(\beta^{[t-1]} + \delta) - \phi(\beta^{[t-1]}) \leq \varepsilon,
 \end{split}
-$$ where $\varepsilon > 0$ is the step size and $\phi$ the penalty function (which satisfies the triangular inequality). Via Taylor expansion, one can approximate the general framework to $$
+$$ 
+where $\varepsilon > 0$ is the step size and $\phi$ the penalty function (which satisfies the triangular inequality - in our case it's the LASSO penalty $\phi(\delta) = \lVert \delta \rVert_1$). Via Taylor expansion, one can approximate the general framework to 
+$$
 \delta^{[t]} = \underset{\delta \in \mathbb{R}^p}{\mathrm{arg\min}}
  \langle \nabla f(\beta^{[t-1]}) , \delta \rangle \ \text{subject to} \ \phi(\delta) \leq \varepsilon.
 $$
@@ -139,21 +198,13 @@ i) & \ \text{Given} \ \beta^{[t-1]}, \ \text{update the nuisance parameters to o
 ii) & \ \delta^{[t]} = \underset{\delta \in \mathbb{R}^p}{\mathrm{arg\min}}
       \langle U(\beta^{[t-1]}, \nu^{[t]}) , \delta \rangle \ 
       \text{subject to} \ \phi(\delta) \leq \varepsilon, \\
-iii) & \ \beta^{[t]} = \beta^{[t-1]} + \delta^{[t]},
+iii) & \ \beta^{[t]} = \beta^{[t-1]} + \delta^{[t]}.
 \end{split}
 $$
 
-where $\phi(\delta) = \lVert \delta \rVert_1$ is the LASSO penalty.
 
 Note: In [@RN18], the procedure is generalized for the bi-level setting using the group LASSO (gLASSO) penalty.
 
-### LassoGEE
-
-No references found. But checking the code of the main functions reveals the direct usage of the **PGEE** functions, but uses own functions to include the $L^1$-penalty.
-
-### pgee.mixed
-
-Can be applied for multivariate outcomes and is for the univariate case the same as **PGEE**. There is an additional method for controlling the FDR of the selection, but this is (currently) only in the multivariate setting available.
 
 # Mixed effects models based methods
 
@@ -166,10 +217,10 @@ Y_i = X_i^T \beta + Z_i^T b_i + \varepsilon_i.
 $$ The regression is now formulated as
 
 $$
-\mu_{ij} := E[Y_{ij} \mid b_i] = X_{ij}^T \beta + Z_{ij}^T b_i
+\mu_{ij} := E[Y_{ij} \mid b_i] = X_{ij}^T \beta + Z_{ij}^T b_i,
 $$
 
-where $\beta$ are interpreted as *fixed effects* and $b_i$ as *random effects*.
+where $\beta$ is interpreted as *fixed effects* and $b_i$ as *random effects*.
 
 The generalized mixed effects are therefore given by
 
@@ -179,7 +230,7 @@ $$ {#eq-glmm}
 
 The term $X_{ij}^T\beta$ can be seen as difference from the population mean and the additional term $Z_{ij}^Tb_i$ accounts the subject-specific effect. Therefore, the $b_i$ introduces a correlation structure (marginally) between the $Y_i$.
 
-Note: As usual, $(\mu_{ij})_j$ are independent and belong to the exponential family with $\text{Var} [\mu_{ij}] = v(\mu_{ij})\phi$ for a variance function $v$ and a dispersion parameter $\phi$.
+Note: As usual, $(\mu_{ij})_j$ are independent and belong to the exponential family with $\text{Var} [\mu_{ij}] = \phi v(\mu_{ij})$ for a variance function $v$ and a dispersion parameter $\phi$.
 
 A common procedure to solve the regression formula for mixed effects models is via maximum likelihood estimation. The basis assumptions implies that $Y_i | b_i$ has an exponential family distribution and $b_i$ has a multivariate normal distribution with zero mean and covariance matrix $G$. The (integrated) likelihood function is then defined as $$
 L(\beta, \phi, G) = \prod_{i=1} ^N\int f(Y_i|b_i; \phi) f(b_i; G) \ \text{d}b_i.
@@ -191,19 +242,17 @@ $$
 
 ## Identified software packages
 
-The following R packages are based on the GLMM framework.
+The following identified R packages are based on the GLMM (genealized linear mixed effects model) framework.
 
-### splmm
 
-The idea of the approach of [@yang2022] is to penalize both fixed and random effects. To penalize the random effects, the correlation matrix must be considered: Rewrite $G = \sigma^2 D$ and apply the Cholesky decomposition $D = LL^T$. The advantage of this decomposition is that now the $k$-th row of $L$ ($L_{(k)}$) is linked to the $k$-th random effect, i.e. if $L_{(k)} = 0$, the $k$-th random effect will be removed from the model. A similar approximation is done to simplify the likelihood function and in addition, the nuisance $\phi$ is substituted leading to the *profile log-likelihood* $$
-\ell^{\text{PL}}(\beta, D) := \frac{1}{2} \sum_{i=1}^N \log|V_i| + \frac{N}{2}\log\Big(\sum_{i=1}^N (Y_i - X_i\beta)^T V_i^{-1} (Y_i - X_i\beta) \Big),
-$$ with $V_i := Z_iDZ_i^T + I_T$ the (standardized) conditional covariance matrix of $Y_i$. Extending this with two simultaneous applied penalties leads to the final objective function: $$
-\ell^{\text{splmm}}(\beta, D) := \ell^{\text{PL}}(\beta, D) + \sum_{p'=1}^p P_{\lambda_1}(|\beta_{p'}|) + \sum_{q'=2}^q P_{\lambda_2}(\lVert L_{(k)} \rVert_2).
-$$ The first penalty function, $P_{\lambda_1}$ regulates the sparsity of $\beta$, while $P_{\lambda_2}$ regulates the sparsity of the random effects (via sparsity of $L$). Starting at $q' = 2$ ensures to keep the random intercept in the model.
+### glmmLasso
 
-Note: $P_{\lambda_2}$ introduces a group penalty on the rows of $L$, achieving the shrinkage of all entries of a certain row to $0$.
+[@groll2012] expanded the PQL by an additional penalty term for the fixed effects, motivated by the LASSO regularization: $$
+\ell^{\text{glmmLasso}}(\beta, \phi, G) := \ell^{\text{PQL}}(\beta, \phi, G) - \lambda \lVert \beta \rVert_1,
+$$ where the $\text{argmax} \ \ell^{\text{glmmLasso}}(\beta, \phi, G)$ will preserve the estimates for $\beta$ and $b$.
 
-The **splmm** package currently supports the LASSO and SCAD penalties as independent choices for $P_{\lambda_k}$.
+But since there is no default setting for the penalty parameter $\lambda$, nor a default setting for the grid.
+
 
 ### rpql
 
@@ -211,38 +260,61 @@ The **splmm** package currently supports the LASSO and SCAD penalties as indepen
 \ell^{\text{rpql}}(\beta, \phi, G) := \ell^{\text{PQL}}(\beta, \phi, G) - \lambda\sum_{p' = 1}^pv_{p'}|\beta_{p'}| - \lambda \sum_{q'=1}^q w_{q'}\lVert b_{\bullet q'} \rVert_2,
 $$ where $v_{p'}$ and $w_{q'}$ are weights analogous to the adaptive (group) LASSO (i.e. the reciprocal of the OLS) . The coefficients are then also estimated by $\text{argmax} \ \ell^{\text{rpql}}(\beta, \phi, G)$.
 
-### buildmer
 
-There is no peer-reviewed publication for this package, even though it is the most frequently used package in this review ($> 170,000$ all-time downloads). Only a [vignette](https://cran.r-project.org/web/packages/buildmer/vignettes/buildmer.html) is revealing details on this method. The core idea is 'finding the maximal *feasible* model & doing stepwise elimination from it'.
+### splmm
 
-This algorithm is also available for the frameworks of Generalized Additive Models (GAM) and Mixed-Effects-Regression Trees (MERT).
+The idea of the approach of [@yang2022] is to penalize both fixed and random effects. To penalize the random effects, the correlation matrix must be considered: Rewrite $G = \sigma^2 D$ and apply the Cholesky decomposition $D = LL^T$. The advantage of this decomposition is that now the $k$-th row of $L$ ($L_{(k)}$) is linked to the $k$-th random effect, i.e. if $L_{(k)} = 0$, the $k$-th random effect will be removed from the model. A similar approximation is done to simplify the likelihood function and in addition, the nuisance $\phi$ is substituted leading to the *profile log-likelihood* 
+$$
+\ell^{\text{PL}}(\beta, D) := \frac{1}{2} \sum_{i=1}^N \log|V_i| + \frac{N}{2}\log\Big(\sum_{i=1}^N (Y_i - X_i\beta)^T V_i^{-1} (Y_i - X_i\beta) \Big),
+$$ 
+with $V_i := Z_iDZ_i^T + I_T$ the (standardized) conditional covariance matrix of $Y_i$. Extending this with two simultaneous applied penalties leads to the final objective function: 
+$$
+\ell^{\text{splmm}}(\beta, D) := \ell^{\text{PL}}(\beta, D) + \sum_{p'=1}^p P_{\lambda_1}(|\beta_{p'}|) + \sum_{q'=2}^q P_{\lambda_2}(\lVert L_{(k)} \rVert_2).
+$$
+The first penalty function, $P_{\lambda_1}$ regulates the sparsity of $\beta$, while $P_{\lambda_2}$ regulates the sparsity of the random effects (via sparsity of $L$). Starting at $q' = 2$ ensures to keep the random intercept in the model.
+
+Note: $P_{\lambda_2}$ introduces a group penalty on the rows of $L$, achieving the shrinkage of all entries of a certain row to $0$.
+
+The **splmm** package currently supports the LASSO and SCAD (default setting) penalties as independent choices for $P_{\lambda_k}$.
+
 
 ### plsmmLasso
 
-To understand this method, we first have to introduce the *Generalized Semiparametric Mixed Models* (GSMM) [@taavoni2021]: $$
+To understand this method, we first have to introduce GSMM (Generalized Semiparametric Mixed Models) [@taavoni2021]: 
+$$
 \eta_{ij}^{\text{GSMM}} := X_{ij}^T \beta + Z_{ij}^T b_i + f(t_{ij}),
-$$ where $t_{ij}$ is the time point of the $j$-th measurement of subject $i$ and $f$ a continuous and twice differentiable function on some finite interval. The unspecified function $f$ is approximate via $$
+$$
+where $t_{ij}$ is the time point of the $j$-th measurement of subject $i$ and $f$ a continuous and twice differentiable function on some finite interval. The unspecified function $f$ is approximated via
+$$
 \begin{split}
 f(t_{ij}) &= a_0 + a_1 t_{ij} + \ldots + a_d t_{ij}^d + \sum_{\ell=1}^L a_{d+1+\ell}(t_{ij}-t_i^{(\ell)})_+^d \\
  &= B(t_{ij})^T a,
 \end{split}
-$$ expressed by the scalar product of basis functions $B(t_{ij})$ and spline coefficients $a$. Defining $D_{ij} := (X_{ij}^T, B_j(t_{ij})^T)^T$ and $\theta := (\beta^T, a^T)^T$, the equation for GSMM can be rewritten as $$
+$$ 
+expressed by the scalar product of basis functions $B(t_{ij})$ and spline coefficients $a$. Defining $D_{ij} := (X_{ij}^T, B_j(t_{ij})^T)^T$ and $\theta := (\beta^T, a^T)^T$, the equation for GSMM can be rewritten as
+$$
 \eta_{ij}^{\text{GSMM}} = D_{ij}^T\theta + Z_{ij}^Tb_i.
-$$ The corresponding log-likelihood function is then expanded by a penalty term, yielding to $$
+$$ 
+The corresponding log-likelihood function is then expanded by a penalty term, yielding to 
+$$
 \ell^{\text{plsmmLasso}}(\beta, a, D, \phi) := \sum_{i=1}^N \log\big(p_{Y_i|b_i}(Y_i|b_i, \theta)\big) + \sum_{i=1}^N \log\big(p_{b_i}(b_i)\big) - n \sum_{p' = 1}^p P_{\lambda}(|\beta_{p'}|)
-$$ with a penalty function $P_\lambda$ (e.g. SCAD) and tuning parameter $\lambda$.
+$$ 
+with a penalty function $P_\lambda$ (e.g. SCAD) and tuning parameter $\lambda$.
 
 Note: The second term is not necessary for the estimation of the coefficients $\beta$.
 
 **plsmmLasso** does perform a *partial linear semiparametric mixed effects model*, but there is no further information about this specific approach.
 
+
 ### alqrfe
 
-The package is based on [@danilevicz2024]. Only the random intercepts are included next to the fixed effects in this model, e.g. we assume $$
+The package is based on a penalized quantile regression approach [@danilevicz2024]. Only the random intercepts are included next to the fixed effects in this model, e.g. we assume $$
 Y_{ij} = X_{ij}^T \beta + b_i + \varepsilon_{ij}.
-$$ Further, this method does not model the expected value, but the $\tau$-quantile of $Y_{ij}$ given $X_{ij}$: $$
+$$ More precisely, this approach models the $\tau$-quantile of $Y_{ij}$ given $X_{ij}$: 
+$$
 Q_{Y_{ij}}(\tau|X_{ij}) = X_{ij}^T \beta(\tau) + b_i(\tau).
-$$ To express the estimation approach, we need some definitions. For $u \in \mathbb{R}$, let $\psi_\tau(u) := |\tau - 1_{u \leq 0}|$, $g(\cdot)$ a convex loss function and $\varrho_\tau(u) := \psi_\tau(u)g(u)$.
+$$ 
+To express the estimation approach, we need some definitions. For $u \in \mathbb{R}$, let $\psi_\tau(u) := |\tau - 1_{u \leq 0}|$, $g(\cdot)$ a convex loss function and $\varrho_\tau(u) := \psi_\tau(u)g(u)$.
 
 Possible choices for $g$ are: $$
 \begin{split}
@@ -253,7 +325,7 @@ Possible choices for $g$ are: $$
 3) & \ g_3(u) := \Big(c|u| - \frac{1}{2}c^2 \Big) 1_{|u| > c} + \Big(\frac{1}{2} u^2 \Big) 1_{|u| \leq c}, \ c>0, \\ 
 & \ \text{M-quantile regression with fixed effects (MQRFE)}.
 \end{split}
-$$ Note: $g_3$ is the so-called Huber loss function and a robust mixture of $g_1$ and $g_2$.
+$$ Note: $g_3$ is the so-called Huber loss function and is a robust mixture of $g_1$ and $g_2$.
 
 Taking account of a LASSO-like penalty term, weighted by a tuning parameter $\lambda$, resolves in following equation and will be used to estimate the regression coefficients:
 
@@ -261,15 +333,16 @@ $$
 \min_{b \in \mathbb{R}^N, \\ \beta \in \mathbb{R}^p} \sum_{i=1}^N \sum_{j=1}^T \varrho_\tau(Y_{ij} - X_{ij}^T\beta - b_i) + \lambda \sum_{i=1}^N|b_i|.
 $$
 
-The **alqrfe** package calculates $\lambda$ via a grid within the main function *qr*. There, the method 'lqrfe' ('l' for LASSO) relates to above expression, but there is also the 'adaptive' variant of it, 'alqrfe', using solution of QRFE as weights for 'lqrfe'. But there is no further literature about this and it is unclear, which $g$ is used.
+The **alqrfe** package calculates $\lambda$ via a grid within the main function *qr*. There, the method 'lqrfe' ('l' for LASSO) relates to above expression, but there is also the 'adaptive' variant of it, 'alqrfe', using solution of QRFE as weights for 'lqrfe'. But there is no further literature about this and it is unclear, which $g$ is used (most likely $g_1$ for LASSO).
 
-### glmmLasso
 
-[@groll2012] expanded the PQL by an additional penalty term for the fixed effects, motivated by the LASSO regularization: $$
-\ell^{\text{glmmLasso}}(\beta, \phi, G) := \ell^{\text{PQL}}(\beta, \phi, G) - \lambda \lVert \beta \rVert_1,
-$$ where the $\text{argmax} \ \ell^{\text{glmmLasso}}(\beta, \phi, G)$ will preserve the estimates for $\beta$ and $b$.
 
-But since there is no default setting for the penalty parameter $\lambda$, nor a default setting for the grid.
+### buildmer
+
+There is no peer-reviewed publication for this package, even though it is the most frequently used package in this review ($> 170,000$ all-time downloads). Only a [vignette](https://cran.r-project.org/web/packages/buildmer/vignettes/buildmer.html) is revealing details on this method. The core idea is 'finding the maximal *feasible* model & doing stepwise elimination from it'.
+
+This algorithm is also available for the frameworks of Generalized Additive Models (GAM) and Mixed-Effects-Regression Trees (MERT).
+
 
 # Bayesian based methods
 
@@ -282,7 +355,7 @@ $$
 We have to find the posterior distribution to $\beta$ which needs to provide a rationale to decide wether a variable $X_i$ is included in the final model or not. The two R packages *sparsereg* and *spikeSlabGAM* are based on two different approaches to model the distribution of $\beta$. The first one extens the Bayesian LASSO apporoach while the secound one applies the SSVS / spike-and-slab framework to the GAMM (generalized additive mixed model).
 
 
-#### The Oracle Property
+### The Oracle Property
 
 Assume a model $Y_i = X_i^T\beta + \varepsilon_i$ with centered errors $\varepsilon_i$ that have finite fourth moments and a set $S := \lbrace k \mid \beta_k \neq 0 \rbrace$ of the incices of the *in-truth nonzero* eintries of $\beta$. An *oracle estimator* $\hat{\beta}^\text{oracle}$ satisfies $$
 \begin{split}
@@ -294,7 +367,7 @@ $$
 
 For example, the adaptive LASSO (frequentist approach) satisfies the Oracle Property.
 
-#### Spike & Slab regression
+### Spike & Slab regression
 
 See [@Dab2019] and [@PN2015] for further insights of this subsection.  Set
 $$
@@ -311,9 +384,9 @@ $$
 $$
 To 'solve' this system, the Gibbs sampler is used. Therefore, we need the posterior distributions of the conditional hyperparameters. It turns out that $\pi \mid \beta, \tau^2, \theta$ is computationally problematic due to the Dirac function. A solution to this is to replace the Dirac function by a centered normal distribution with very less variance. This is know as
 
-#### SSVS (stochastic search variable selection)
+### SSVS (stochastic search variable selection)
 
-In this approach, a coefficient won't be set to exactally $0$, but a perteriori to a very 'small' area around $0$. To be precise, we assume
+In this approach, a coefficient won't be set to exactally $0$, but a priori to a very 'small' area around $0$. To be precise, we assume
 $$
 \beta_i \mid \gamma_i \sim (1-\gamma_i)\mathcal{N}(0, \tau_i^2) + \gamma_i \mathcal{N}(0, \tau_i^2c_i^2)
 $$
@@ -333,7 +406,7 @@ $$
 
 ## Identified software packages
 
-The following R packages are based on Bayesian frameworks.
+The following selected R packages are based on Bayesian frameworks.
 
 ### sparsereg
 
