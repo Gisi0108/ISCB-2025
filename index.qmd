@@ -1,5 +1,11 @@
 ---
 title: "ISCB2025 Concepts"
+sidebar:
+  contents: auto
+number-sections: false
+bibliography: quarto_library.bib
+bibliographystyle: ieee
+link-citations: true
 ---
 
 # GEE based methods
@@ -398,4 +404,9 @@ Now the *spike* part corresponds to the probability of a particular coefficient 
 $$
 The scalar $\alpha_i$ can be interpreted as 'importance' of the $i$th model term and the vector $\xi_i$ 'distributes' $\alpha_i$ across entries of $\beta_i$. The default settings are $a_\tau = 5,\ b_\tau = 24,\ v_0 = 2.5 \cdot 10^{-4},\ a_w = b_w = 1$. The implementation is done via a MCMC sampler for peNMIG.
 
+
+# References
+
+::: {#refs}
+:::
 
